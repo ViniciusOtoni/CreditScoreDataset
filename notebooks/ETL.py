@@ -18,21 +18,28 @@ class TransformToNull(BaseEstimator, TransformerMixin):
 
     def transform(self, X):
         X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
-         
+
         for column_name in self.column_names:
             if pd.api.types.is_object_dtype(X_transformed[column_name]):
-                #Preenchendo valores nulos para vazios para previnir erros.
-                
+                # Preenchendo valores nulos com vazios para prevenir erros.
                 X_transformed[column_name] = X_transformed[column_name].fillna('')
-                # Verificando se contém apenas caracteres especiais.
-                X_transformed.loc[(X_transformed[column_name].str.match(r'[()\-$#@!%&*]', na=False)) & ~(X_transformed[column_name].str.contains(r'[^0-9]' ,regex=True)), column_name] = np.nan
-                # #Verificando se possui o valor NM (Not Mentioned).
-                X_transformed.loc[X_transformed[column_name].str.contains("NM", na=False), column_name] = np.nan
-                #Verificando valores vazios e transformando em nulos.
-                X_transformed.loc[X_transformed[column_name].str.strip().eq(''), column_name] = np.nan
-                
-        return X_transformed
+               
+                # # Verificando se contém caracteres especiais para SSN.
+                if column_name == 'SSN' or column_name == 'Payment_Behaviour':
+                    special_chars_mask = X_transformed[column_name].str.contains(r'[()\$#@!%&*]', na=False)
+                else:
+                    # Verificando se contém apenas caracteres especiais ou caracteres especiais com números.
+                    special_chars_mask = X_transformed[column_name].str.contains(r'[()\-_$#@!%&*]', na=False) & ~X_transformed[column_name].str.contains(r'[a-zA-Z0-9]', na=False)
 
+                X_transformed.loc[special_chars_mask, column_name] = np.nan
+
+                # Verificando se possui o valor NM (Not Mentioned).
+                X_transformed.loc[X_transformed[column_name].str.contains("NM", na=False), column_name] = np.nan
+
+                # Verificando valores vazios e transformando em nulos.
+                X_transformed.loc[X_transformed[column_name].str.strip().eq(''), column_name] = pd.NA
+
+        return X_transformed
 
 # Realizando tratamento dos dados nulos da coluna Num_Credit_Card.
 class CleaningMissingCreditCard:
@@ -81,6 +88,8 @@ class CleaningMissingDelayedPayment:
         mode_num_delayed_payment = X_transformed.groupby("Customer_ID")[self.column_name].apply(lambda x: x.mode().iloc[0])
         X_transformed.loc[X_transformed[self.column_name] == 0, self.column_name] = X_transformed["Customer_ID"].map(mode_num_delayed_payment)
         X_transformed.loc[(X_transformed[self.column_name] == 0) & X_transformed['Delay_from_due_date'] > 0, self.column_name] = 1
+
+
                 
         return X_transformed
 
@@ -133,6 +142,23 @@ class CleaningNumBankAccounts:
 
         X_transformed.loc[X_transformed['Customer_ID'].isin(index_bank_account_null) & (X_transformed[self.column_name] <= 0), self.column_name] = X_transformed['Customer_ID'].map(count_per_customer_id) 
 
+        return X_transformed
+
+
+
+# Realizando tratamento dos dados nulos da coluna Monthly_Balance. # AJUSTAR!!
+class CleaningMissingMonthlyBalance:
+    def __init__(self, column_name):
+        self.column_name = column_name
+
+    def fit(self, X, y=None):
+        return self  
+    
+    def transform(self, X):
+        X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
+        
+        X_transformed[self.column_name].fillna("Not Specified", inplace=True)
+                
         return X_transformed
 
 
@@ -202,7 +228,7 @@ class ModifyMonthCreditHistory(BaseEstimator, TransformerMixin):
         X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
         
         # chamando a função criada para realizar as alterações
-        X_transformed[self.column_name] = X_transformed.groupby('Customer_ID').apply(self.modify_month).reset_index(drop=True) 
+        X_transformed = X_transformed.groupby('Customer_ID').apply(self.modify_month).reset_index(drop=True) 
 
         return X_transformed
 
@@ -289,8 +315,9 @@ class ConvertDtypeToNumeric(BaseEstimator, TransformerMixin):
         X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
         
         for column_name in self.column_names:
-            if X_transformed[column_name].str.contains(r'\d', regex=True).any():
-                X_transformed[column_name] = pd.to_numeric(X_transformed[column_name], errors='coerce')
+            if pd.api.types.is_object_dtype(X_transformed[column_name]):
+                if X_transformed[column_name].str.contains(r'\d', regex=True).any():
+                    X_transformed[column_name] = pd.to_numeric(X_transformed[column_name], errors='coerce')
             else:
                 pass
                 
