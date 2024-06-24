@@ -11,6 +11,18 @@ from math import ceil
 
 # Transformar dados inconsistentes para NaN
 class TransformToNull(BaseEstimator, TransformerMixin):
+    """
+    Transforma valores irregulares em nulos.
+    
+    Parâmetros:
+    columns: list of str
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    """
+
     def __init__(self, column_names):
         self.column_names = column_names
     
@@ -44,6 +56,18 @@ class TransformToNull(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Num_Credit_Card.
 class CleaningMissingCreditCard(BaseEstimator, TransformerMixin):
+    
+    """
+    Transforma valores menores ou igual a 0 para 1.
+    
+    Parâmetros:
+    column: Num_Credit_Card
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -60,6 +84,18 @@ class CleaningMissingCreditCard(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Type_of_Loan.
 class CleaningMissingTypeOfLoan(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos para a str (Not Specified).
+    
+    Parâmetros:
+    column: Type_of_Loan
+
+    Métodos:
+    fit:  Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -76,6 +112,18 @@ class CleaningMissingTypeOfLoan(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Num_of_Delayed_Payment.
 class CleaningMissingDelayedPayment(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos agrupados pela coluna Customer_ID e preenchendo os valores pela moda de cada Customer_ID.
+    
+    Parâmetros:
+    column: Num_of_Delayed_Payment
+
+    Métodos:
+    fit:  Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -97,6 +145,19 @@ class CleaningMissingDelayedPayment(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Monthly_Inhand_Salary.
 class CleaningMissingMonthlySalary(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos agrupados pela coluna Customer_ID e preenchendo os valores pela media de cada Customer_ID.
+    
+    Parâmetros:
+    column: Monthly_Inhand_Salary
+
+    Métodos:
+    fit:  Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -124,6 +185,19 @@ class CleaningMissingMonthlySalary(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Num_Bank_Accounts.
 class CleaningNumBankAccounts(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos agrupados pela coluna Customer_ID e preenche os valores pela quantidade de ocorrências de cada Customer_ID.
+    
+    Parâmetros:
+    column: Num_Bank_Accounts
+
+    Métodos:
+    fit:  Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -149,6 +223,19 @@ class CleaningNumBankAccounts(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos da coluna Monthly_Balance.
 class CleaningMissingMonthlyBalance(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos da coluna especificada para a moda da coluna.
+    
+    Parâmetros:
+    column: Monthly_Balance
+
+    Métodos:
+    fit:  Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação na coluna especificada.
+
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -165,6 +252,20 @@ class CleaningMissingMonthlyBalance(BaseEstimator, TransformerMixin):
 
 # Realizando tratamento dos dados nulos.
 class CleaningMissingValues(BaseEstimator, TransformerMixin):
+
+    """
+    Transforma valores nulos pela (próxima ou anterior) ocorrência de valor agrupado pelo Customer_ID.
+    
+    Parâmetros:
+    columns: list of str
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+
+    """
+    
     def __init__(self, column_names):
         self.column_names = column_names
     
@@ -183,6 +284,20 @@ class CleaningMissingValues(BaseEstimator, TransformerMixin):
 
 # Retirando caracteres não numéricos de colunas "numéricas"
 class CleaningNotNumbers(BaseEstimator, TransformerMixin): 
+
+    """
+    Retira valores inconsistentes de colunas "númericas" e realiza a conversão do dtype.
+    
+    Parâmetros:
+    columns: list of str
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
     def __init__(self, column_names):
         self.column_names = column_names
 
@@ -208,6 +323,20 @@ class CleaningNotNumbers(BaseEstimator, TransformerMixin):
 
 # Ajustando os meses contidos na string.    
 class ModifyMonthCreditHistory(BaseEstimator, TransformerMixin):
+
+    """
+    Substitui os meses adequando a sequência correta.
+    
+    Parâmetros:
+    column: Credit_History_Age
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+     
+
     def __init__(self, column_name):
         self.column_name = column_name
     
@@ -237,6 +366,20 @@ class ModifyMonthCreditHistory(BaseEstimator, TransformerMixin):
 
 # Criando uma nova coluna no dataframe contendo apenas o ano e mês.
 class CreateDateCreditHistoryColumn(BaseEstimator, TransformerMixin):
+
+    """
+    Realiza a criação de uma nova coluna (Credit_History_Age_Date) contendo apenas o mês e ano respctivos da coluna (Credit_History_Age).
+    
+    Parâmetros:
+    column: Credit_History_Age
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -273,6 +416,20 @@ class CreateDateCreditHistoryColumn(BaseEstimator, TransformerMixin):
 
 # Criando uma coluna númerica para os meses
 class CreateMonthNumberColumn(BaseEstimator, TransformerMixin):
+
+    """
+    Realiza a criação de uma nova coluna (Credit_History_Age_Date) contendo apenas o mês e ano respctivos da coluna (Credit_History_Age).
+    
+    Parâmetros:
+    column: Credit_History_Age
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -294,6 +451,19 @@ class CreateMonthNumberColumn(BaseEstimator, TransformerMixin):
 
 # Alterando a coluna para binário (yes: 1) (no: 0)
 class TransformToBinaryValues(BaseEstimator, TransformerMixin):
+
+    """
+    Realiza a conversão da coluna (Payment_of_Min_Amount) para valor binário { Yes: 1, No: 0 }.
+    
+    Parâmetros:
+    column: Payment_of_Min_Amount
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -311,6 +481,21 @@ class TransformToBinaryValues(BaseEstimator, TransformerMixin):
 
 # Convertendo as colunas possíveis para o dtype int ou float.
 class ConvertDtypeToNumeric(BaseEstimator, TransformerMixin):
+
+    """
+    Realiza a conversão da colunas específicadas para o dtype numérico.
+    
+    Parâmetros:
+    columns: list of str
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+     
+
     def __init__(self, column_names):
         self.column_names = column_names
 
@@ -334,6 +519,20 @@ class ConvertDtypeToNumeric(BaseEstimator, TransformerMixin):
 
 
 class TreatingOutliersWithQuantile(BaseEstimator, TransformerMixin):
+
+    """
+    Realiza o tratamento de outliers através de um limitador gerado pelo quartill/quadrante.
+    
+    Parâmetros:
+    columns: list of float/int
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
     def __init__(self, column_names):
         self.column_names = column_names
 
@@ -362,6 +561,20 @@ class TreatingOutliersWithQuantile(BaseEstimator, TransformerMixin):
 
 
 class TreatingOutliersWithMode(BaseEstimator, TransformerMixin):
+    
+    """
+    Realiza o tratamento de outliers aplicando a moda da coluna.
+    
+    Parâmetros:
+    columns: list of float/int
+        Nomes das colunas no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
     def __init__(self, column_names):
         self.column_names = column_names
 
@@ -380,6 +593,20 @@ class TreatingOutliersWithMode(BaseEstimator, TransformerMixin):
         return X_transformed
 
 class TreatingOutliersNumCreditInquires(BaseEstimator, TransformerMixin): #Num_Credit_Inquiries
+
+    """
+    Realiza o tratamento de outliers aplicando a moda da coluna agrupado pelo Customer_ID.
+    
+    Parâmetros:
+    column: Num_Credit_Inquiries
+        Nomes da coluna no DataFrame a serem transformadas.
+
+    Métodos:
+    fit: Método utilizado para conformidade com o pipeline do Scikit-Learn. Não realiza nenhuma ação.
+    transform: Aplica a transformação para valores nulos nas colunas especificadas.
+    
+    """
+
     def __init__(self, column_name):
         self.column_name = column_name
 
