@@ -9,11 +9,16 @@ O repositório inclui classes para transformar colunas específicas de um DataFr
 
 ## Extrutura do projeto
 
-data/: Contém o dataset de estoque utilizado na análise. 
+data/: Contém o dataset de creditscore utilizado na análise. 
+<br>
 notebooks/: Notebooks Jupyter com o processo de exploração e análise de dados.
+<br> 
 ---n00_data_visualization Realizar visualização dos dados e extrutura do dataframe.
+<br>
 ---n01_data_cleaning Processo de (data cleaning) do dataframe.
+<br> 
 ---n02_pipeline Criação do pipeline para automatizar o processo de transformações do dataframe.
+<br> 
 ---ETL.py Criação das classes com os métodos fit e transform responsável pelo processo de ETL ( extract | transform | load ) do dataframe.
 
 
