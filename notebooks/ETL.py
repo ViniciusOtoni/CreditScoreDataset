@@ -4,6 +4,7 @@ import numpy as np
 # --------------------------------------------------------------------- # 
 from datetime import datetime, timedelta
 import re
+from math import ceil
 
 
 
@@ -42,7 +43,7 @@ class TransformToNull(BaseEstimator, TransformerMixin):
         return X_transformed
 
 # Realizando tratamento dos dados nulos da coluna Num_Credit_Card.
-class CleaningMissingCreditCard:
+class CleaningMissingCreditCard(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -58,7 +59,7 @@ class CleaningMissingCreditCard:
 
 
 # Realizando tratamento dos dados nulos da coluna Type_of_Loan.
-class CleaningMissingTypeOfLoan:
+class CleaningMissingTypeOfLoan(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -74,7 +75,7 @@ class CleaningMissingTypeOfLoan:
     
 
 # Realizando tratamento dos dados nulos da coluna Num_of_Delayed_Payment.
-class CleaningMissingDelayedPayment:
+class CleaningMissingDelayedPayment(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -95,7 +96,7 @@ class CleaningMissingDelayedPayment:
 
 
 # Realizando tratamento dos dados nulos da coluna Monthly_Inhand_Salary.
-class CleaningMissingMonthlySalary:
+class CleaningMissingMonthlySalary(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -122,7 +123,7 @@ class CleaningMissingMonthlySalary:
     
 
 # Realizando tratamento dos dados nulos da coluna Num_Bank_Accounts.
-class CleaningNumBankAccounts:
+class CleaningNumBankAccounts(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -146,8 +147,8 @@ class CleaningNumBankAccounts:
 
 
 
-# Realizando tratamento dos dados nulos da coluna Monthly_Balance. # AJUSTAR!!
-class CleaningMissingMonthlyBalance:
+# Realizando tratamento dos dados nulos da coluna Monthly_Balance.
+class CleaningMissingMonthlyBalance(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
 
@@ -157,13 +158,13 @@ class CleaningMissingMonthlyBalance:
     def transform(self, X):
         X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
         
-        X_transformed[self.column_name].fillna("Not Specified", inplace=True)
+        X_transformed.loc[X_transformed[self.column_name].isna(), self.column_name] = X_transformed[self.column_name].mode().iloc[0]
                 
         return X_transformed
 
 
 # Realizando tratamento dos dados nulos.
-class CleaningMissingValues:
+class CleaningMissingValues(BaseEstimator, TransformerMixin):
     def __init__(self, column_names):
         self.column_names = column_names
     
@@ -204,7 +205,8 @@ class CleaningNotNumbers(BaseEstimator, TransformerMixin):
                 X_transformed[column_name] = X_transformed[column_name].abs()
                 
         return X_transformed
-    
+
+# Ajustando os meses contidos na string.    
 class ModifyMonthCreditHistory(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
@@ -233,6 +235,7 @@ class ModifyMonthCreditHistory(BaseEstimator, TransformerMixin):
         return X_transformed
 
 
+# Criando uma nova coluna no dataframe contendo apenas o ano e mês.
 class CreateDateCreditHistoryColumn(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
@@ -268,6 +271,7 @@ class CreateDateCreditHistoryColumn(BaseEstimator, TransformerMixin):
         return X_transformed
     
 
+# Criando uma coluna númerica para os meses
 class CreateMonthNumberColumn(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
@@ -288,6 +292,7 @@ class CreateMonthNumberColumn(BaseEstimator, TransformerMixin):
         return X_transformed
     
 
+# Alterando a coluna para binário (yes: 1) (no: 0)
 class TransformToBinaryValues(BaseEstimator, TransformerMixin):
     def __init__(self, column_name):
         self.column_name = column_name
@@ -304,6 +309,7 @@ class TransformToBinaryValues(BaseEstimator, TransformerMixin):
         return X_transformed
 
 
+# Convertendo as colunas possíveis para o dtype int ou float.
 class ConvertDtypeToNumeric(BaseEstimator, TransformerMixin):
     def __init__(self, column_names):
         self.column_names = column_names
@@ -323,8 +329,71 @@ class ConvertDtypeToNumeric(BaseEstimator, TransformerMixin):
                 
         return X_transformed
     
-# tratar outliers!!! 
 
+# CLASSES DE TRATAMENTO DE OUTLIERS.
+
+
+class TreatingOutliersWithQuantile(BaseEstimator, TransformerMixin):
+    def __init__(self, column_names):
+        self.column_names = column_names
+
+    def fit(self, X, y=None):
+        return self  
+    
+    def transform(self, X):
+        X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
+        
+        for column_name in self.column_names:
+            Q1 = X_transformed[column_name].quantile(0.25) # primeiro quartil (pega os valores de 25% para baixo)
+            Q3 = X_transformed[column_name].quantile(0.95) # terceiro quartil (pega os valores de 95% para baixo)
+
+            if(column_name == 'Outstanding_Debt' or column_name == 'Amount_invested_monthly'):
+                Q3 = X_transformed[column_name].quantile(0.75) # terceiro quartil (pega os valores de 75% para baixo)
+           
+            
+            IQR = Q3 - Q1 # calcula a diferença entre o primeiro e o terceiro quartil
+
+            upper_bound = Q3 + 1.5 * IQR
+
+            X_transformed[column_name] = X_transformed[column_name].apply(lambda x:  ceil(upper_bound) if x > upper_bound else x) # Alteração de outliers
+                
+        return X_transformed
+
+
+
+class TreatingOutliersWithMode(BaseEstimator, TransformerMixin):
+    def __init__(self, column_names):
+        self.column_names = column_names
+
+    def fit(self, X, y=None):
+        return self  
+    
+    def transform(self, X):
+        X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
+        
+        for column_name in self.column_names:
+            limit = 100
+            if column_name == 'Interest_Rate':
+                limit = 30
+            X_transformed.loc[X_transformed[column_name] >= limit, column_name] =  X_transformed[column_name].mode().iloc[0] # Alteração de outliers
+                
+        return X_transformed
+
+class TreatingOutliersNumCreditInquires(BaseEstimator, TransformerMixin): #Num_Credit_Inquiries
+    def __init__(self, column_name):
+        self.column_name = column_name
+
+    def fit(self, X, y=None):
+        return self  
+    
+    def transform(self, X):
+        X_transformed = X.copy()  # Copiando o input do dataframe para evitar modificar o original.
+        
+        
+        X_transformed[self.column_name] = X_transformed.groupby('Customer_ID')[self.column_name].transform(
+            lambda x: x.mode().iloc[1] if len(x.mode()) > 1 else x.mode().iloc[0] if x.mode().iloc[0] <= 20 else x)
+                
+        return X_transformed
 
 
 
